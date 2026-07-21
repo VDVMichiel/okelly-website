@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   format,
   addMonths,
@@ -15,80 +15,7 @@ import {
   endOfWeek,
 } from 'date-fns';
 import { nl } from 'date-fns/locale';
-
-type Event = {
-  id: string;
-  title: string;
-  date: string;
-  time: string;
-  endTime: string;
-  location: string;
-  description: string;
-  type: 'club' | 'lic' | 'lik' | 'nic' | 'other';
-};
-
-const events: Event[] = [
-  {
-    id: '1',
-    title: 'Clubavond',
-    date: '2026-03-27',
-    time: '19:00',
-    endTime: '24:00',
-    location: 'De Kermeta, Kermt',
-    description: 'Wekelijkse clubavond voor leden en geïnteresseerden.',
-    type: 'club',
-  },
-  {
-    id: '2',
-    title: 'Clubavond',
-    date: '2026-04-03',
-    time: '19:00',
-    endTime: '24:00',
-    location: 'De Kermeta, Kermt',
-    description: 'Wekelijkse clubavond voor leden en geïnteresseerden.',
-    type: 'club',
-  },
-  {
-    id: '3',
-    title: 'LIC 2025-2026 #9',
-    date: '2026-04-03',
-    time: '20:00',
-    endTime: '23:00',
-    location: 'Thuisploeg',
-    description: 'Limburgse Interclub Competitie - speelronde 9.',
-    type: 'lic',
-  },
-  {
-    id: '4',
-    title: '74ste LIK #9',
-    date: '2026-05-01',
-    time: '20:00',
-    endTime: '23:00',
-    location: 'Kermeta, Kermt',
-    description: 'Limburgs Individueel Kampioenschap - speelronde 9.',
-    type: 'lik',
-  },
-  {
-    id: '5',
-    title: 'Clubkampioenschap',
-    date: '2026-04-15',
-    time: '14:00',
-    endTime: '18:00',
-    location: 'De Kermeta, Kermt',
-    description: 'Jaarlijks clubkampioenschap. Inschrijven via contact.',
-    type: 'other',
-  },
-  {
-    id: '6',
-    title: 'Schaakweekend Limburg',
-    date: '2026-05-22',
-    time: '10:00',
-    endTime: '18:00',
-    location: 'CC De Muze, Hasselt',
-    description: 'Toernooi voor alle leeftijden en niveau\'s.',
-    type: 'other',
-  },
-];
+import { Event } from '@/lib/googleSheets';
 
 const weekdays = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'];
 
@@ -101,8 +28,19 @@ const typeColors = {
 };
 
 export default function Calendar() {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+
+  useEffect(() => {
+    fetch('/api/events')
+      .then((res) => res.json())
+      .then(setEvents)
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }, []);
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -121,6 +59,22 @@ export default function Calendar() {
     setCurrentMonth(new Date());
     setSelectedDate(new Date());
   };
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-4xl text-center py-12">
+        <p className="text-[#5E0000]/60 text-lg">Kalender laden...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mx-auto max-w-4xl text-center py-12">
+        <p className="text-[#5E0000]/60 text-lg">Kon de kalender niet laden. Probeer later opnieuw.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-4xl">
