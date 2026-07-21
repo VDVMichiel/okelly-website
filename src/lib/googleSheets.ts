@@ -6,7 +6,7 @@ export type Event = {
   endTime: string;
   location: string;
   description: string;
-  type: 'club' | 'lic' | 'lik' | 'nic' | 'other';
+  type: 'clubkampioenschap' | 'lic' | 'lik' | 'nic' | 'lessen' | 'vrijschaken' | 'other';
 };
 
 const API_KEY = process.env.GOOGLE_SHEETS_API_KEY || '';
@@ -38,7 +38,7 @@ export async function fetchEvents(): Promise<Event[]> {
     return rows.slice(1).map((row, index) => ({
       id: row[0] || String(index + 1),
       date: row[1] || '',
-      type: (row[2] || 'other').toLowerCase() as Event['type'],
+      type: (() => { const raw = (row[2] || 'other').toLowerCase(); const map: Record<string, Event['type']> = { club: 'clubkampioenschap', lessen: 'lessen', 'vrij schaken': 'vrijschaken', vrijschaken: 'vrijschaken' }; return map[raw] || (raw as Event['type']); })(),
       title: row[3] || '',
       time: row[4] || '',
       endTime: row[5] || '',

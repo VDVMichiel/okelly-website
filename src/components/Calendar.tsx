@@ -20,10 +20,12 @@ import { Event } from '@/lib/googleSheets';
 const weekdays = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'];
 
 const typeColors = {
-  club: { bg: 'bg-[#A8312D]', text: 'text-white', dot: 'bg-[#A8312D]' },
+  clubkampioenschap: { bg: 'bg-[#A8312D]', text: 'text-white', dot: 'bg-[#A8312D]' },
   lic: { bg: 'bg-blue-600', text: 'text-white', dot: 'bg-blue-600' },
   lik: { bg: 'bg-green-600', text: 'text-white', dot: 'bg-green-600' },
   nic: { bg: 'bg-purple-600', text: 'text-white', dot: 'bg-purple-600' },
+  lessen: { bg: 'bg-[#EA580C]', text: 'text-white', dot: 'bg-[#EA580C]' },
+  vrijschaken: { bg: 'bg-[#0891B2]', text: 'text-white', dot: 'bg-[#0891B2]' },
   other: { bg: 'bg-[#5E0000]', text: 'text-white', dot: 'bg-[#5E0000]' },
 };
 
@@ -35,7 +37,7 @@ export default function Calendar() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   useEffect(() => {
-    fetch('/api/events')
+    fetch('/api/events/')
       .then((res) => res.json())
       .then(setEvents)
       .catch(() => setError(true))
@@ -146,6 +148,9 @@ export default function Calendar() {
                           dayEvents[0].type === 'lic' ? '#2563eb' :
                           dayEvents[0].type === 'lik' ? '#16a34a' :
                           dayEvents[0].type === 'nic' ? '#9333ea' :
+                          dayEvents[0].type === 'lessen' ? '#EA580C' :
+                          dayEvents[0].type === 'vrijschaken' ? '#0891B2' :
+                          dayEvents[0].type === 'other' ? '#5E0000' :
                           '#A8312D'
                         )}}
                       ></span>
@@ -160,16 +165,25 @@ export default function Calendar() {
             <p className="text-xs font-bold text-[#5E0000] mb-2">Legende:</p>
             <div className="flex flex-wrap gap-4">
               <span className="flex items-center gap-2 text-sm text-[#5E0000]">
-                <span className="w-3 h-3 rounded-full bg-[#A8312D]"></span> Clubavond
+                <span className="w-3 h-3 rounded-full bg-[#A8312D]"></span> Clubkampioenschap
               </span>
               <span className="flex items-center gap-2 text-sm text-[#5E0000]">
                 <span className="w-3 h-3 rounded-full bg-blue-600"></span> LIC
               </span>
               <span className="flex items-center gap-2 text-sm text-[#5E0000]">
+                <span className="w-3 h-3 rounded-full bg-purple-600"></span> NIC
+              </span>
+              <span className="flex items-center gap-2 text-sm text-[#5E0000]">
                 <span className="w-3 h-3 rounded-full bg-green-600"></span> LIK
               </span>
               <span className="flex items-center gap-2 text-sm text-[#5E0000]">
-                <span className="w-3 h-3 rounded-full bg-purple-600"></span> NIC
+                <span className="w-3 h-3 rounded-full bg-[#EA580C]"></span> Lessen
+              </span>
+              <span className="flex items-center gap-2 text-sm text-[#5E0000]">
+                <span className="w-3 h-3 rounded-full bg-[#0891B2]"></span> Vrij schaken
+              </span>
+              <span className="flex items-center gap-2 text-sm text-[#5E0000]">
+                <span className="w-3 h-3 rounded-full bg-[#5E0000]"></span> Overig
               </span>
             </div>
           </div>
