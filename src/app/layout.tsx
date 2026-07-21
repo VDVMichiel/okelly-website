@@ -6,6 +6,9 @@ import Footer from '@/components/Footer'
 export const metadata: Metadata = {
   title: "Schaakclub O'Kelly",
   description: "Schaakclub O'Kelly - Chess club in Belgium",
+  icons: {
+    icon: '/favicon.png',
+  },
 }
 
 export default function RootLayout({
