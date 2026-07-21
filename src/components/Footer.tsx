@@ -15,7 +15,7 @@ export default function Footer() {
             De Kermeta<br />
             Diestersteenweg 204<br />
             3510 Kermt (Hasselt)<br />
-            <a href="mailto:info@schaakclubokelly.be" className="hover:text-[#c4a77d]">info@schaakclubokelly.be</a>
+            <a href="mailto:schaakclubokelly@gmail.com" className="hover:text-[#c4a77d]">schaakclubokelly@gmail.com</a>
           </p>
           <a 
             href="https://www.google.com/maps/place/Kermeta/@50.9473594,5.2548192,106m/data=!3m1!1e3!4m6!3m5!1s0x47c1233cbacacadd:0xd72ce91c6b91fb09!8m2!3d50.9473393!4d5.2551022!16s%2Fg%2F1thw5wlj"

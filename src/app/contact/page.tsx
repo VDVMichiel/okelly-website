@@ -31,7 +31,7 @@ export default function Contact() {
           <div className="mb-8 rounded-lg bg-white p-6 shadow-md">
             <h2 className="mb-4 text-xl font-bold text-[#1e293b]">Contactgegevens</h2>
             <p className="text-gray-600">
-              Email: info@schaakclubokelly.be<br />
+              Email: schaakclubokelly@gmail.com<br />
               Telefoon: +32 12 34 56 78
             </p>
           </div>

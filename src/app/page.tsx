@@ -181,7 +181,7 @@ export default function Home() {
               <div className="rounded-lg bg-white/10 p-6 shadow-md">
                 <h3 className="mb-4 text-xl font-bold">Email</h3>
                 <p className="text-white/90">
-                  info@schaakclubokelly.be
+                  schaakclubokelly@gmail.com
                 </p>
               </div>
             </div>
