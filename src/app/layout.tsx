@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Schaakclub O'Kelly",
   description: "Schaakclub O'Kelly - Chess club in Belgium",
   icons: {
-    icon: '/favicon.png',
+    icon: '/favicon.ico',
   },
 }
 
