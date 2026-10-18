@@ -64,7 +64,8 @@ export default function PostBody({ body }: PostBodyProps) {
           },
           types: {
             image: ({ value }) => {
-              if (!value) return null;
+              // Guard against broken image blocks (asset missing/deleted).
+              if (!value?.asset) return null;
               return (
                 <div className="my-8">
                   <img

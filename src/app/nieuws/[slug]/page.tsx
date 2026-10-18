@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { client, urlFor } from '@/lib/sanity';
+import { client, urlFor, slugifySlug } from '@/lib/sanity';
 import PostBody from '@/components/PostBody';
 
 type PageProps = {
@@ -9,18 +9,28 @@ type PageProps = {
 
 async function getPost(slug: string) {
   try {
-    return await client.fetch(
-      `*[_type == "post" && slug.current == $slug][0] {
-        _id,
-        title,
-        slug,
-        mainImage,
-        body,
-        excerpt,
-        publishedAt
-      }`,
-      { slug }
+    // Fast path: exact match on the stored slug.
+    const query = `*[_type == "post" && slug.current == $slug][0] {
+      _id,
+      title,
+      slug,
+      mainImage,
+      body,
+      excerpt,
+      publishedAt
+    }`;
+    const post = await client.fetch(query, { slug });
+    if (post) return post;
+
+    // Slugs typed manually in the Studio may contain spaces/capitals
+    // ("Clubkampioenschap ronde 1"), which break URLs. The site links to a
+    // slugified version, so match on the slugified form as a fallback.
+    const candidates: { _id: string; slug: string }[] = await client.fetch(
+      `*[_type == "post" && slug.current != null]{ _id, "slug": slug.current }`
     );
+    const match = candidates.find((c) => slugifySlug(c.slug) === slug.toLowerCase());
+    if (!match) return null;
+    return await client.fetch(query, { slug: match.slug });
   } catch (error) {
     console.error('Error fetching post:', error);
     return null;
@@ -36,7 +46,7 @@ export async function generateStaticParams() {
     const posts: { slug: string }[] = await client.fetch(
       `*[_type == "post" && slug.current != null]{ "slug": slug.current }`
     );
-    return posts.map((post) => ({ slug: post.slug }));
+    return posts.map((post) => ({ slug: slugifySlug(post.slug) }));
   } catch (error) {
     console.error('Error fetching post slugs:', error);
     return [];

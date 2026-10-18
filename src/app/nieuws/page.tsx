@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { client } from '@/lib/sanity';
+import { client, postHref } from '@/lib/sanity';
 
 async function getPosts() {
   try {
@@ -43,7 +43,7 @@ export default async function Nieuws() {
             {posts.map((post: any) => (
               <Link 
                 key={post._id} 
-                href={`/nieuws/${post.slug.current}/`}
+                href={postHref(post.slug.current)}
                 className="group block"
               >
                 <div className="h-full rounded-lg bg-white p-6 shadow-md transition group-hover:shadow-xl">

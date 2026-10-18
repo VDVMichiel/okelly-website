@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { client, urlFor } from '@/lib/sanity';
+import { client, urlFor, postHref } from '@/lib/sanity';
 
 type Post = {
   _id: string;
@@ -75,7 +75,7 @@ export default function NieuwsSection() {
           {posts.map((post) => (
             <Link
               key={post._id}
-              href={`/nieuws/${post.slug.current}/`}
+              href={postHref(post.slug.current)}
               className="group block w-full text-left cursor-pointer"
             >
               <div className="h-full rounded-lg bg-white shadow-md overflow-hidden transition group-hover:shadow-xl">
