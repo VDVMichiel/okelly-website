@@ -9,7 +9,7 @@ export default function Agenda() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    fetch('/api/events')
+    fetch('/api/events/')
       .then((res) => res.json())
       .then(setEvents)
       .catch(() => setError(true))

@@ -2,15 +2,20 @@ import Link from 'next/link';
 import { client } from '@/lib/sanity';
 
 async function getPosts() {
-  return client.fetch(`
-    *[_type == "post"] | order(publishedAt desc) {
-      _id,
-      title,
-      slug,
-      excerpt,
-      publishedAt
-    }
-  `);
+  try {
+    return await client.fetch(`
+      *[_type == "post"] | order(publishedAt desc) {
+        _id,
+        title,
+        slug,
+        excerpt,
+        publishedAt
+      }
+    `);
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    return [];
+  }
 }
 
 export default async function Nieuws() {
@@ -38,7 +43,7 @@ export default async function Nieuws() {
             {posts.map((post: any) => (
               <Link 
                 key={post._id} 
-                href={`/nieuws/${post.slug.current}`}
+                href={`/nieuws/${post.slug.current}/`}
                 className="group block"
               >
                 <div className="h-full rounded-lg bg-white p-6 shadow-md transition group-hover:shadow-xl">
