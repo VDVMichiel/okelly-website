@@ -93,7 +93,7 @@ export default async function NieuwsBericht({ params }: PageProps) {
     <div className="min-h-screen bg-[#F8F4EB] py-20">
       <div className="mx-auto w-5/6">
         <Link
-          href="/nieuws/"
+          href="/#nieuws"
           className="text-[#A8312D] font-bold underline mb-8 inline-block"
         >
           ← Terug naar Nieuws
@@ -130,7 +130,7 @@ export default async function NieuwsBericht({ params }: PageProps) {
 
           <div className="mt-12 text-center">
             <Link
-              href="/nieuws/"
+              href="/#nieuws"
               className="inline-block bg-[#A8312D] text-white px-8 py-3 rounded-full font-bold hover:opacity-90"
             >
               ← Terug naar Nieuws
