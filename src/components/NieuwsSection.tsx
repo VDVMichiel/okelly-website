@@ -13,9 +13,12 @@ type Post = {
   publishedAt: string;
 };
 
+const PAGE_SIZE = 6;
+
 export default function NieuwsSection() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -40,6 +43,17 @@ export default function NieuwsSection() {
 
     fetchPosts();
   }, []);
+
+  const totalPages = Math.max(1, Math.ceil(posts.length / PAGE_SIZE));
+  const pagePosts = posts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const changePage = (n: number) => {
+    setPage(n);
+    const section = document.getElementById('nieuws');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   if (loading) {
     return (
@@ -72,7 +86,7 @@ export default function NieuwsSection() {
         </div>
       ) : (
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
+          {pagePosts.map((post) => (
             <Link
               key={post._id}
               href={postHref(post.slug.current)}
@@ -109,6 +123,25 @@ export default function NieuwsSection() {
             </Link>
           ))}
         </div>
+      )}
+
+      {!loading && posts.length > 0 && totalPages > 1 && (
+        <nav className="mt-12 flex items-center justify-center gap-2" aria-label="Paginering">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+            <button
+              key={n}
+              onClick={() => changePage(n)}
+              aria-current={n === page ? 'page' : undefined}
+              className={
+                n === page
+                  ? 'flex h-10 w-10 items-center justify-center rounded-full bg-[#A8312D] text-white font-bold transition'
+                  : 'flex h-10 w-10 items-center justify-center rounded-full bg-[#A8312D]/10 text-[#A8312D] font-bold transition hover:bg-[#A8312D]/20'
+              }
+            >
+              {n}
+            </button>
+          ))}
+        </nav>
       )}
     </div>
   );
