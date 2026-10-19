@@ -10,6 +10,15 @@
 
 html {
   scroll-behavior: smooth;
+  /* Fixed navbar is 3.5rem tall; keep anchor targets (and #contact etc.)
+     from being hidden underneath it. */
+  scroll-padding-top: 3.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {

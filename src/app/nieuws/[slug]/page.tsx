@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import { client, urlFor, slugifySlug } from '@/lib/sanity';
 import PostBody from '@/components/PostBody';
+
+const SITE_URL = 'https://okelly-schaakclub.be';
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -17,7 +20,8 @@ async function getPost(slug: string) {
       mainImage,
       body,
       excerpt,
-      publishedAt
+      publishedAt,
+      _updatedAt
     }`;
     const post = await client.fetch(query, { slug });
     if (post) return post;
@@ -53,30 +57,38 @@ export async function generateStaticParams() {
   }
 }
 
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPost(slug);
 
   if (!post) {
-    return { title: 'Nieuwsbericht niet gevonden — Schaakclub O\'Kelly' };
+    return {
+      title: 'Nieuwsbericht niet gevonden',
+      robots: { index: false },
+    };
   }
 
+  const description = post.excerpt || 'Nieuwsbericht van Schaakclub O\'Kelly';
+  const imageUrl = post.mainImage
+    ? urlFor(post.mainImage).width(1200).height(600).url()
+    : undefined;
+
   return {
-    title: `${post.title} — Schaakclub O'Kelly`,
-    description: post.excerpt || 'Nieuwsbericht van Schaakclub O\'Kelly',
+    title: post.title,
+    description,
+    alternates: {
+      canonical: `/nieuws/${slugifySlug(slug)}/`,
+    },
     openGraph: {
       title: post.title,
-      description: post.excerpt || 'Nieuwsbericht van Schaakclub O\'Kelly',
+      description,
       type: 'article',
-      ...(post.mainImage
-        ? { images: [{ url: urlFor(post.mainImage).width(1200).height(600).url() }] }
-        : {}),
+      publishedTime: post.publishedAt,
+      ...(imageUrl ? { images: [{ url: imageUrl, width: 1200, height: 600, alt: post.title }] } : {}),
     },
     twitter: {
       card: 'summary_large_image',
-      ...(post.mainImage
-        ? { images: [urlFor(post.mainImage).width(1200).height(600).url()] }
-        : {}),
+      ...(imageUrl ? { images: [imageUrl] } : {}),
     },
   };
 }
@@ -89,9 +101,63 @@ export default async function NieuwsBericht({ params }: PageProps) {
     notFound();
   }
 
+  const canonicalPath = `/nieuws/${slugifySlug(slug)}/`;
+  const imageUrl = post.mainImage
+    ? urlFor(post.mainImage).width(1200).height(600).url()
+    : undefined;
+
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Article',
+        headline: post.title,
+        description: post.excerpt || undefined,
+        datePublished: post.publishedAt || undefined,
+        dateModified: post._updatedAt || undefined,
+        ...(imageUrl ? { image: [`${SITE_URL}${imageUrl}`] } : {}),
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': `${SITE_URL}${canonicalPath}`,
+        },
+        author: {
+          '@type': 'Organization',
+          name: "Schaakclub O'Kelly",
+          url: SITE_URL,
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: "Schaakclub O'Kelly",
+          url: SITE_URL,
+        },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: `${SITE_URL}/`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: post.title,
+            item: `${SITE_URL}${canonicalPath}`,
+          },
+        ],
+      },
+    ],
+  };
+
   return (
-    <div className="min-h-screen bg-[#F8F4EB] py-20">
-      <div className="mx-auto w-5/6">
+    <div className="bg-[#F8F4EB] py-14 md:py-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+      <div className="mx-auto w-5/6 max-w-6xl">
         <Link
           href="/#nieuws"
           className="text-[#A8312D] font-bold underline mb-8 inline-block"
@@ -100,23 +166,30 @@ export default async function NieuwsBericht({ params }: PageProps) {
         </Link>
 
         <article className="max-w-3xl mx-auto">
-          <p className="text-[#5E0000]/60 mb-4">
-            {post.publishedAt
-              ? new Date(post.publishedAt).toLocaleDateString('nl-BE', {
+          {post.publishedAt && (
+            <p className="text-[#5E0000]/60 mb-4">
+              <time dateTime={post.publishedAt}>
+                {new Date(post.publishedAt).toLocaleDateString('nl-BE', {
                   day: 'numeric',
                   month: 'long',
                   year: 'numeric',
-                })
-              : ''}
-          </p>
+                })}
+              </time>
+            </p>
+          )}
 
-          <h1 className="text-4xl md:text-5xl font-bold text-[#5E0000] mb-8">{post.title}</h1>
+          <h1 className="font-serif text-3xl font-bold text-[#5E0000] mb-8 md:text-5xl">
+            {post.title}
+          </h1>
 
           {post.mainImage && (
-            <div className="relative h-64 md:h-96 w-full mb-12 rounded-lg overflow-hidden">
+            <div className="relative h-52 w-full mb-10 rounded-lg overflow-hidden md:h-96 md:mb-12">
               <img
-                src={urlFor(post.mainImage).width(1200).height(600).url()}
+                src={imageUrl}
                 alt={post.title}
+                width={1200}
+                height={600}
+                decoding="async"
                 className="h-full w-full object-cover"
               />
             </div>

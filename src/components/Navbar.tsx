@@ -20,7 +20,7 @@ export default function Navbar() {
       window.location.href = '/' + href;
       return;
     }
-    
+
     e.preventDefault();
     const targetId = href.replace('#', '');
     const element = document.getElementById(targetId);
@@ -43,9 +43,9 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 z-50 w-full bg-[#F8F4EB] h-14 flex items-center shadow-md">
-      <div className="mx-auto flex w-5/6 items-center justify-between">
+      <div className="mx-auto flex w-5/6 max-w-6xl items-center justify-between">
         <a href="/" className="flex items-center">
-          <img src="/logo.png" alt="O'Kelly" className="h-10 w-auto" />
+          <img src="/logo.png" alt="Schaakclub O'Kelly" className="h-9 w-auto md:h-10" />
         </a>
 
         <div className="hidden items-center gap-6 md:flex">
@@ -54,7 +54,7 @@ export default function Navbar() {
               key={link.href}
               href={link.href}
               onClick={(e) => handleNavClick(e, link.href)}
-              className="text-sm font-bold text-[#5E0000] hover:font-bold"
+              className="text-sm font-bold text-[#5E0000] hover:text-[#A8312D]"
             >
               {link.label}
             </a>
@@ -62,7 +62,7 @@ export default function Navbar() {
           <a
             href="#contact"
             onClick={(e) => handleNavClick(e, '#contact')}
-            className="rounded-full bg-[#A8312D] px-6 py-2 text-sm font-bold text-white transition hover:font-bold"
+            className="rounded-full bg-[#A8312D] px-6 py-2 text-sm font-bold text-white transition hover:bg-[#8f2825]"
           >
             Word lid
           </a>
@@ -71,8 +71,11 @@ export default function Navbar() {
         <button
           className="md:hidden rounded-full bg-[#A8312D] p-2"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-expanded={isMenuOpen}
+          aria-controls="mobile-menu"
+          aria-label={isMenuOpen ? 'Menu sluiten' : 'Menu openen'}
         >
-          <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             {isMenuOpen ? (
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             ) : (
@@ -83,17 +86,29 @@ export default function Navbar() {
       </div>
 
       {isMenuOpen && (
-        <div className="absolute right-0 top-full flex h-screen w-[300px] flex-col gap-4 bg-[#F8F4EB] p-6 shadow-xl md:hidden">
-          {navLinks.map((link) => (
+        <div
+          id="mobile-menu"
+          className="absolute left-0 top-full w-full max-h-[calc(100dvh-3.5rem)] overflow-y-auto bg-[#F8F4EB] p-6 shadow-xl md:hidden"
+        >
+          <div className="flex flex-col gap-4">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
+                className="text-xl font-bold text-[#5E0000]"
+              >
+                {link.label}
+              </a>
+            ))}
             <a
-              key={link.href}
-              href={link.href}
-              onClick={(e) => handleNavClick(e, link.href)}
-              className="text-xl font-bold text-[#5E0000]"
+              href="#contact"
+              onClick={(e) => handleNavClick(e, '#contact')}
+              className="mt-2 rounded-full bg-[#A8312D] px-6 py-3 text-center text-base font-bold text-white"
             >
-              {link.label}
+              Word lid
             </a>
-          ))}
+          </div>
         </div>
       )}
     </nav>

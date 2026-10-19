@@ -79,10 +79,10 @@ export default function Calendar() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-5xl">
       <div className="md:grid md:grid-cols-2 md:gap-12">
         <div>
-          <div className="bg-white rounded-xl p-6 shadow-md">
+          <div className="bg-white rounded-xl p-4 shadow-md md:p-6">
             <div className="flex items-center justify-between mb-2">
               <button
                 onClick={goToPreviousMonth}
@@ -92,7 +92,7 @@ export default function Calendar() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <h3 className="text-xl font-bold text-[#A8312D] capitalize">
+              <h3 className="text-lg font-bold text-[#A8312D] capitalize md:text-xl">
                 {format(currentMonth, 'MMMM yyyy', { locale: nl })}
               </h3>
               <button
@@ -114,7 +114,7 @@ export default function Calendar() {
 
             <div className="grid grid-cols-7 gap-1 mb-2">
               {weekdays.map((day) => (
-                <div key={day} className="text-center text-sm font-bold text-[#5E0000]/60 py-2">
+                <div key={day} className="text-center text-xs font-bold text-[#5E0000]/60 py-2 md:text-sm">
                   {day}
                 </div>
               ))}
@@ -135,7 +135,7 @@ export default function Calendar() {
                       color: isSelected ? 'white' : (!isToday(day) && isCurrentMonth ? '#5E0000' : isToday(day) ? '#A8312D' : 'rgba(94, 0, 0, 0.3)'),
                     }}
                     className={`
-                      h-10 w-10 rounded-full flex flex-col items-center justify-center mx-auto text-sm transition relative border-2
+                      h-9 w-9 md:h-10 md:w-10 rounded-full flex flex-col items-center justify-center mx-auto text-xs md:text-sm transition relative border-2
                       ${isToday(day) && !isSelected ? 'border-[#A8312D]' : 'border-transparent'}
                       ${!isSelected && isCurrentMonth ? 'hover:bg-[#F8F4EB]' : ''}
                     `}
@@ -163,26 +163,26 @@ export default function Calendar() {
 
           <div className="mt-4 bg-white rounded-lg p-4 shadow-md">
             <p className="text-xs font-bold text-[#5E0000] mb-2">Legende:</p>
-            <div className="flex flex-wrap gap-4">
-              <span className="flex items-center gap-2 text-sm text-[#5E0000]">
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
+              <span className="flex items-center gap-2 text-xs text-[#5E0000] md:text-sm">
                 <span className="w-3 h-3 rounded-full bg-[#A8312D]"></span> Clubkampioenschap
               </span>
-              <span className="flex items-center gap-2 text-sm text-[#5E0000]">
+              <span className="flex items-center gap-2 text-xs text-[#5E0000] md:text-sm">
                 <span className="w-3 h-3 rounded-full bg-blue-600"></span> LIC
               </span>
-              <span className="flex items-center gap-2 text-sm text-[#5E0000]">
+              <span className="flex items-center gap-2 text-xs text-[#5E0000] md:text-sm">
                 <span className="w-3 h-3 rounded-full bg-purple-600"></span> NIC
               </span>
-              <span className="flex items-center gap-2 text-sm text-[#5E0000]">
+              <span className="flex items-center gap-2 text-xs text-[#5E0000] md:text-sm">
                 <span className="w-3 h-3 rounded-full bg-green-600"></span> LIK
               </span>
-              <span className="flex items-center gap-2 text-sm text-[#5E0000]">
+              <span className="flex items-center gap-2 text-xs text-[#5E0000] md:text-sm">
                 <span className="w-3 h-3 rounded-full bg-[#EA580C]"></span> Lessen
               </span>
-              <span className="flex items-center gap-2 text-sm text-[#5E0000]">
+              <span className="flex items-center gap-2 text-xs text-[#5E0000] md:text-sm">
                 <span className="w-3 h-3 rounded-full bg-[#0891B2]"></span> Vrij schaken
               </span>
-              <span className="flex items-center gap-2 text-sm text-[#5E0000]">
+              <span className="flex items-center gap-2 text-xs text-[#5E0000] md:text-sm">
                 <span className="w-3 h-3 rounded-full bg-[#5E0000]"></span> Overig
               </span>
             </div>

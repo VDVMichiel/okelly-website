@@ -7,6 +7,10 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'sans-serif'],
+        serif: ['var(--font-lora)', 'Georgia', 'serif'],
+      },
       colors: {
         'primary-100': '#f8f4eb',
         'primary-300': '#e4dcc8',
