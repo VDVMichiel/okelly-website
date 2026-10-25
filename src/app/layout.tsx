@@ -45,7 +45,7 @@ const organizationJsonLd = {
   },
   logo: {
     '@type': 'ImageObject',
-    url: `${SITE_URL}/logo-square.png`,
+    url: `${SITE_URL}/logo-pawn.png`,
     width: 512,
     height: 512,
   },
