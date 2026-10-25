@@ -13,10 +13,10 @@ export default function PostBody({ body }: PostBodyProps) {
         components={{
           block: {
             h2: ({ children }) => (
-              <h2 className="text-2xl font-bold text-[#5E0000] mt-8 mb-4">{children}</h2>
+              <h2 className="mt-8 mb-4 font-serif text-2xl font-bold text-[#5E0000]">{children}</h2>
             ),
             h3: ({ children }) => (
-              <h3 className="text-xl font-bold text-[#5E0000] mt-6 mb-3">{children}</h3>
+              <h3 className="mt-6 mb-3 font-serif text-xl font-bold text-[#5E0000]">{children}</h3>
             ),
             normal: ({ children }) => (
               <p className="mb-4 text-[#5E0000] leading-relaxed">{children}</p>

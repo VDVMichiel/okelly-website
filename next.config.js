@@ -3,6 +3,13 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Keep Turbopack scoped to this project. Without this it walks up to the
+  // user folder (another lockfile lives there), which makes chunk paths
+  // include this folder's name (with a space and apostrophe) and can break
+  // client hydration in dev.
+  turbopack: {
+    root: __dirname,
+  },
   trailingSlash: true,
   // The site is a one-pager: these older standalone pages duplicated the
   // homepage sections (with outdated info). Send any existing inbound links

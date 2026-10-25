@@ -28,11 +28,11 @@ export default async function NieuwsSection() {
   const posts = await getPosts();
 
   return (
-    <div className="mx-auto w-5/6 max-w-6xl">
-      <h2 className="mb-6 font-serif text-3xl font-bold text-[#A8312D] md:text-4xl">
+    <div className="flex min-h-0 flex-1 flex-col">
+      <h2 className="mb-2 font-serif text-3xl font-bold text-[#A8312D] md:text-4xl">
         Nieuws
       </h2>
-      <p className="mb-8 text-base text-[#5E0000] md:text-lg">
+      <p className="mb-4 text-base text-[#5E0000] md:text-lg">
         Blijf op de hoogte van het laatste nieuws van Schaakclub O&apos;Kelly.
       </p>
 

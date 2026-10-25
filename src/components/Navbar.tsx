@@ -45,7 +45,7 @@ export default function Navbar() {
     <nav className="fixed top-0 z-50 w-full bg-[#F8F4EB] h-14 flex items-center shadow-md">
       <div className="mx-auto flex w-5/6 max-w-6xl items-center justify-between">
         <a href="/" className="flex items-center">
-          <img src="/logo.png" alt="Schaakclub O'Kelly" className="h-9 w-auto md:h-10" />
+          <img src="/logo.png" alt="Schaakclub O'Kelly" width={677} height={200} className="h-9 w-auto md:h-10" />
         </a>
 
         <div className="hidden items-center gap-6 md:flex">
@@ -88,7 +88,7 @@ export default function Navbar() {
       {isMenuOpen && (
         <div
           id="mobile-menu"
-          className="absolute left-0 top-full w-full max-h-[calc(100dvh-3.5rem)] overflow-y-auto bg-[#F8F4EB] p-6 shadow-xl md:hidden"
+          className="absolute left-0 top-full w-full max-h-[calc(100dvh-3.5rem)] overflow-y-auto bg-[#F8F4EB] p-6 shadow-lg md:hidden"
         >
           <div className="flex flex-col gap-4">
             {navLinks.map((link) => (

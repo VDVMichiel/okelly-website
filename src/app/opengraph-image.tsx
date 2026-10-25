@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og'
 
-export const alt = "Schaakclub O'Kelly — schaken in Hasselt en Limburg"
+export const alt = "Schaakclub O'Kelly, schaken in Hasselt en Limburg"
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 

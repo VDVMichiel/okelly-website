@@ -10,8 +10,8 @@
 
 html {
   scroll-behavior: smooth;
-  /* Fixed navbar is 3.5rem tall; keep anchor targets (and #contact etc.)
-     from being hidden underneath it. */
+  /* The fixed navbar is 3.5rem tall. Anchor targets land just below it so the
+     boundary between two sections stays visible at the bottom edge of the bar. */
   scroll-padding-top: 3.5rem;
 }
 
@@ -19,6 +19,14 @@ html {
   html {
     scroll-behavior: auto;
   }
+}
+
+/* One visible keyboard focus ring that works on both the cream and the red
+   bands: a cream ring against the dark maroon outer ring. */
+:focus-visible {
+  outline: 2px solid #f8f4eb !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 2px #5e0000;
 }
 
 body {

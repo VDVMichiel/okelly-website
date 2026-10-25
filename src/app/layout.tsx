@@ -2,13 +2,12 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Lora } from 'next/font/google'
 import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
 
 const lora = Lora({ subsets: ['latin'], variable: '--font-lora', display: 'swap' })
 
 export const SITE_URL = 'https://okelly-schaakclub.be'
 const SITE_NAME = "Schaakclub O'Kelly"
-const DEFAULT_TITLE = "Schaakclub O'Kelly — Schaken in Hasselt & Kermt sinds 1947"
+const DEFAULT_TITLE = "Schaakclub O'Kelly | Schaken in Hasselt & Kermt sinds 1947"
 const DEFAULT_DESCRIPTION =
   "Koninklijke Hasseltse Schaakclub O'Kelly: elke vrijdag clubavond in Kermt (Hasselt). " +
   'Schaken leren en spelen in Limburg voor beginners en gevorderden. Jeugd, interclub en ' +
@@ -113,7 +112,6 @@ export default function RootLayout({
         <main>
           {children}
         </main>
-        <Footer />
       </body>
     </html>
   )

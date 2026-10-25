@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { client, urlFor, slugifySlug } from '@/lib/sanity';
 import PostBody from '@/components/PostBody';
+import Footer from '@/components/Footer';
 
 const SITE_URL = 'https://okelly-schaakclub.be';
 
@@ -152,7 +153,8 @@ export default async function NieuwsBericht({ params }: PageProps) {
   };
 
   return (
-    <div className="bg-[#F8F4EB] py-14 md:py-20">
+    <>
+      <div className="bg-[#F8F4EB] pb-14 pt-20 md:pb-20 md:pt-28">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
@@ -160,7 +162,7 @@ export default async function NieuwsBericht({ params }: PageProps) {
       <div className="mx-auto w-5/6 max-w-6xl">
         <Link
           href="/#nieuws"
-          className="text-[#A8312D] font-bold underline mb-8 inline-block"
+          className="mb-8 inline-block rounded-full bg-[#A8312D] px-6 py-2 font-bold text-white transition hover:bg-[#8f2825]"
         >
           ← Terug naar Nieuws
         </Link>
@@ -204,7 +206,7 @@ export default async function NieuwsBericht({ params }: PageProps) {
           <div className="mt-12 text-center">
             <Link
               href="/#nieuws"
-              className="inline-block bg-[#A8312D] text-white px-8 py-3 rounded-full font-bold hover:opacity-90"
+              className="inline-block rounded-full bg-[#A8312D] px-8 py-3 font-bold text-white transition hover:bg-[#8f2825]"
             >
               ← Terug naar Nieuws
             </Link>
@@ -212,5 +214,8 @@ export default async function NieuwsBericht({ params }: PageProps) {
         </article>
       </div>
     </div>
+
+    <Footer />
+    </>
   );
 }

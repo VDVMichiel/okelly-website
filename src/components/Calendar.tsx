@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import type { CSSProperties } from 'react';
 import {
   format,
   addMonths,
@@ -19,15 +20,27 @@ import { Event } from '@/lib/googleSheets';
 
 const weekdays = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'];
 
-const typeColors = {
-  clubkampioenschap: { bg: 'bg-[#A8312D]', text: 'text-white', dot: 'bg-[#A8312D]' },
-  lic: { bg: 'bg-blue-600', text: 'text-white', dot: 'bg-blue-600' },
-  lik: { bg: 'bg-green-600', text: 'text-white', dot: 'bg-green-600' },
-  nic: { bg: 'bg-purple-600', text: 'text-white', dot: 'bg-purple-600' },
-  lessen: { bg: 'bg-[#EA580C]', text: 'text-white', dot: 'bg-[#EA580C]' },
-  vrijschaken: { bg: 'bg-[#0891B2]', text: 'text-white', dot: 'bg-[#0891B2]' },
-  other: { bg: 'bg-[#5E0000]', text: 'text-white', dot: 'bg-[#5E0000]' },
+const typeColor: Record<Event['type'], string> = {
+  clubkampioenschap: '#A8312D',
+  lic: '#2563eb',
+  lik: '#16a34a',
+  nic: '#9333ea',
+  lessen: '#EA580C',
+  vrijschaken: '#0891B2',
+  other: '#5E0000',
 };
+
+const typeLabel: Record<Event['type'], string> = {
+  clubkampioenschap: 'Clubkampioenschap',
+  lic: 'LIC',
+  lik: 'LIK',
+  nic: 'NIC',
+  lessen: 'Lessen',
+  vrijschaken: 'Vrij schaken',
+  other: 'Overig',
+};
+
+const capitalizeFirst = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
 
 export default function Calendar() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -35,188 +48,228 @@ export default function Calendar() {
   const [error, setError] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const detailRef = useRef<HTMLDivElement>(null);
+  const mounted = useRef(false);
 
   useEffect(() => {
     fetch('/api/events/')
       .then((res) => res.json())
-      .then(setEvents)
+      .then((data: Event[]) => setEvents(data.filter((event) => event.date)))
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
-  const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(currentMonth);
-  const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 });
-  const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
+  const days = useMemo(() => {
+    const start = startOfWeek(startOfMonth(currentMonth), { weekStartsOn: 1 });
+    const end = endOfWeek(endOfMonth(currentMonth), { weekStartsOn: 1 });
+    return eachDayOfInterval({ start, end });
+  }, [currentMonth]);
 
-  const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+  const eventsFor = (day: Date) => events.filter((event) => isSameDay(new Date(event.date), day));
+  const selectedEvents = selectedDate ? eventsFor(selectedDate) : [];
 
-  const selectedEvents = events.filter((e) =>
-    selectedDate && isSameDay(new Date(e.date), selectedDate)
-  );
+  const nextEvent = useMemo(() => {
+    const startOfToday = new Date(new Date().toDateString());
+    return (
+      [...events]
+        .filter((event) => new Date(event.date) >= startOfToday)
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0] || null
+    );
+  }, [events]);
 
-  const goToPreviousMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
-  const goToNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
   const goToToday = () => {
     setCurrentMonth(new Date());
     setSelectedDate(new Date());
   };
 
+  // On phones the day details sit under the calendar, so bring them into view
+  // after a date is chosen instead of making the visitor scroll down manually.
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [selectedDate]);
+
   if (loading) {
     return (
-      <div className="mx-auto max-w-4xl text-center py-12">
-        <p className="text-[#5E0000]/60 text-lg">Kalender laden...</p>
+      <div className="mx-auto max-w-4xl py-12 text-center">
+        <p className="text-lg text-[#5E0000]/60">Kalender laden...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="mx-auto max-w-4xl text-center py-12">
-        <p className="text-[#5E0000]/60 text-lg">Kon de kalender niet laden. Probeer later opnieuw.</p>
+      <div className="mx-auto max-w-4xl py-12 text-center">
+        <p className="text-lg text-[#5E0000]/60">Kon de kalender niet laden. Probeer later opnieuw.</p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-5xl">
-      <div className="md:grid md:grid-cols-2 md:gap-12">
-        <div>
-          <div className="bg-white rounded-xl p-4 shadow-md md:p-6">
-            <div className="flex items-center justify-between mb-2">
+    <div className="mx-auto w-full max-w-5xl">
+      <div className="grid gap-5 md:grid-cols-[1.15fr_1fr] md:gap-8">
+        <div className="md:row-start-1">
+          <div className="rounded-lg border border-[#5E0000]/10 bg-white p-3 shadow-md sm:p-4 md:p-5">
+            <div className="mb-2 flex items-center justify-between">
               <button
-                onClick={goToPreviousMonth}
-                className="p-2 hover:bg-[#F8F4EB] rounded-lg transition"
+                onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+                aria-label="Vorige maand"
+                className="p-1.5 text-[#A8312D] transition hover:bg-[#F8F4EB]"
               >
-                <svg className="w-5 h-5 text-[#A8312D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <h3 className="text-lg font-bold text-[#A8312D] capitalize md:text-xl">
-                {format(currentMonth, 'MMMM yyyy', { locale: nl })}
-              </h3>
+              <div className="text-center">
+                <h3 className="font-serif text-lg font-bold capitalize text-[#A8312D] md:text-xl">
+                  {format(currentMonth, 'MMMM yyyy', { locale: nl })}
+                </h3>
+                <button
+                  onClick={goToToday}
+                  className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#5E0000]/65 underline-offset-4 hover:underline"
+                >
+                  Vandaag
+                </button>
+              </div>
               <button
-                onClick={goToNextMonth}
-                className="p-2 hover:bg-[#F8F4EB] rounded-lg transition"
+                onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+                aria-label="Volgende maand"
+                className="p-1.5 text-[#A8312D] transition hover:bg-[#F8F4EB]"
               >
-                <svg className="w-5 h-5 text-[#A8312D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
             </div>
 
-            <button
-              onClick={goToToday}
-              className="text-sm text-[#A8312D] underline mb-4 hover:font-bold block"
-            >
-              Vandaag
-            </button>
-
-            <div className="grid grid-cols-7 gap-1 mb-2">
+            <div className="mb-1 grid grid-cols-7">
               {weekdays.map((day) => (
-                <div key={day} className="text-center text-xs font-bold text-[#5E0000]/60 py-2 md:text-sm">
+                <div
+                  key={day}
+                  className="py-1.5 text-center text-[11px] font-semibold uppercase tracking-wide text-[#5E0000]/65"
+                >
                   {day}
                 </div>
               ))}
             </div>
 
-            <div className="grid grid-cols-7 gap-1">
+            <div className="grid grid-cols-7 gap-y-1">
               {days.map((day) => {
-                const dayEvents = events.filter((e) => isSameDay(new Date(e.date), day));
-                const isSelected = selectedDate && isSameDay(day, selectedDate);
+                const dayEvents = eventsFor(day);
+                const isSelected = !!selectedDate && isSameDay(day, selectedDate);
                 const isCurrentMonth = isSameMonth(day, currentMonth);
+                const eventColour = dayEvents.length > 0 ? typeColor[dayEvents[0].type] : null;
+                const today = isToday(day);
+
+                let style: CSSProperties = {};
+                let extra = 'border-2 ';
+
+                if (eventColour && isCurrentMonth) {
+                  style = { backgroundColor: eventColour, color: '#fff' };
+                  extra += 'border-transparent' + (isSelected ? ' font-bold' : '');
+                } else if (!isCurrentMonth) {
+                  style = { color: 'rgba(94,0,0,0.28)' };
+                  extra += 'border-transparent' + (isSelected ? ' font-bold' : '');
+                } else {
+                  extra += 'border-transparent' + (isSelected || today ? ' font-bold' : ' hover:bg-[#F8F4EB]');
+                }
 
                 return (
                   <button
                     key={day.toISOString()}
                     onClick={() => setSelectedDate(day)}
-                    style={{
-                      backgroundColor: isSelected ? '#A8312D' : 'transparent',
-                      color: isSelected ? 'white' : (!isToday(day) && isCurrentMonth ? '#5E0000' : isToday(day) ? '#A8312D' : 'rgba(94, 0, 0, 0.3)'),
-                    }}
-                    className={`
-                      h-9 w-9 md:h-10 md:w-10 rounded-full flex flex-col items-center justify-center mx-auto text-xs md:text-sm transition relative border-2
-                      ${isToday(day) && !isSelected ? 'border-[#A8312D]' : 'border-transparent'}
-                      ${!isSelected && isCurrentMonth ? 'hover:bg-[#F8F4EB]' : ''}
-                    `}
+                    aria-pressed={isSelected}
+                    style={style}
+                    className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-[13px] transition md:h-9 md:w-9 md:text-sm ${extra}`}
                   >
-                    <span className={isSelected ? 'font-bold' : ''}>{format(day, 'd')}</span>
-                    {dayEvents.length > 0 && (
-                      <span 
-                        className="absolute bottom-1 w-1.5 h-1.5 rounded-full" 
-                        style={{ backgroundColor: isSelected ? 'white' : (
-                          dayEvents[0].type === 'lic' ? '#2563eb' :
-                          dayEvents[0].type === 'lik' ? '#16a34a' :
-                          dayEvents[0].type === 'nic' ? '#9333ea' :
-                          dayEvents[0].type === 'lessen' ? '#EA580C' :
-                          dayEvents[0].type === 'vrijschaken' ? '#0891B2' :
-                          dayEvents[0].type === 'other' ? '#5E0000' :
-                          '#A8312D'
-                        )}}
-                      ></span>
-                    )}
+                    {format(day, 'd')}
                   </button>
                 );
               })}
             </div>
           </div>
+        </div>
 
-          <div className="mt-4 bg-white rounded-lg p-4 shadow-md">
-            <p className="text-xs font-bold text-[#5E0000] mb-2">Legende:</p>
-            <div className="flex flex-wrap gap-x-4 gap-y-2">
-              <span className="flex items-center gap-2 text-xs text-[#5E0000] md:text-sm">
-                <span className="w-3 h-3 rounded-full bg-[#A8312D]"></span> Clubkampioenschap
-              </span>
-              <span className="flex items-center gap-2 text-xs text-[#5E0000] md:text-sm">
-                <span className="w-3 h-3 rounded-full bg-blue-600"></span> LIC
-              </span>
-              <span className="flex items-center gap-2 text-xs text-[#5E0000] md:text-sm">
-                <span className="w-3 h-3 rounded-full bg-purple-600"></span> NIC
-              </span>
-              <span className="flex items-center gap-2 text-xs text-[#5E0000] md:text-sm">
-                <span className="w-3 h-3 rounded-full bg-green-600"></span> LIK
-              </span>
-              <span className="flex items-center gap-2 text-xs text-[#5E0000] md:text-sm">
-                <span className="w-3 h-3 rounded-full bg-[#EA580C]"></span> Lessen
-              </span>
-              <span className="flex items-center gap-2 text-xs text-[#5E0000] md:text-sm">
-                <span className="w-3 h-3 rounded-full bg-[#0891B2]"></span> Vrij schaken
-              </span>
-              <span className="flex items-center gap-2 text-xs text-[#5E0000] md:text-sm">
-                <span className="w-3 h-3 rounded-full bg-[#5E0000]"></span> Overig
-              </span>
+        <div className="space-y-4 md:col-start-2 md:row-span-2 md:row-start-1">
+          <div
+            className={`rounded-lg border-l-4 border-[#A8312D] bg-white px-4 py-3 shadow-md md:block md:px-5 md:py-4 ${
+              selectedEvents.length > 0 ? 'hidden' : ''
+            }`}
+          >
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#5E0000]/65">
+              Eerstvolgende activiteit
+            </p>
+            {nextEvent ? (
+              <>
+                <p className="mt-1 font-serif text-base font-bold leading-snug text-[#5E0000] md:text-lg">
+                  {nextEvent.title}
+                </p>
+                <p className="text-sm text-[#5E0000]/70">
+                  {capitalizeFirst(format(new Date(nextEvent.date), 'EEEE d MMMM', { locale: nl }))}
+                  {nextEvent.time && `, ${nextEvent.time}${nextEvent.endTime ? ` tot ${nextEvent.endTime}` : ''}`}
+                </p>
+              </>
+            ) : (
+              <p className="mt-1 text-sm text-[#5E0000]/60">Nog niets gepland.</p>
+            )}
+          </div>
+
+          <div
+            ref={detailRef}
+            className="scroll-mt-20 rounded-lg border border-[#5E0000]/10 bg-white p-4 shadow-md md:p-6"
+          >
+            <h3 className="font-serif text-lg font-bold text-[#A8312D] md:text-xl">
+              {selectedDate
+                ? capitalizeFirst(format(selectedDate, 'EEEE d MMMM', { locale: nl }))
+                : 'Selecteer een datum'}
+            </h3>
+
+            <div className="mt-3 space-y-4 md:mt-4">
+              {selectedEvents.length > 0 ? (
+                selectedEvents.map((event) => (
+                  <div
+                    key={event.id}
+                    className="border-l-2 pl-3"
+                    style={{ borderColor: typeColor[event.type] }}
+                  >
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+                      <h4 className="text-sm font-bold text-[#5E0000]">{event.title}</h4>
+                      {event.time && (
+                        <span className="text-xs text-[#5E0000]/65">
+                          {event.time}
+                          {event.endTime ? ` tot ${event.endTime}` : ''}
+                        </span>
+                      )}
+                    </div>
+                    {event.location && (
+                      <p className="mt-0.5 text-xs leading-relaxed text-[#5E0000]/70">{event.location}</p>
+                    )}
+                    {event.description && (
+                      <p className="mt-1 hidden text-xs leading-relaxed text-[#5E0000]/70 md:block">
+                        {event.description}
+                      </p>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-[#5E0000]/60">Geen activiteit op deze dag.</p>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="mt-8 md:mt-0">
-          <h3 className="text-xl font-bold text-[#A8312D] mb-4 capitalize">
-            {selectedDate
-              ? format(selectedDate, 'EEEE d MMMM', { locale: nl })
-              : 'Selecteer een datum'}
-          </h3>
-
-          {selectedEvents.length > 0 ? (
-            <div className="space-y-3">
-              {selectedEvents.map((event) => (
-                <div
-                  key={event.id}
-                  className={`rounded-lg p-4 shadow-md ${typeColors[event.type].bg} ${typeColors[event.type].text}`}
-                >
-                  <h4 className="font-bold text-lg">{event.title}</h4>
-                  <p className="text-sm opacity-90 mt-1">
-                    {event.time} - {event.endTime}
-                  </p>
-                  <p className="text-sm opacity-90">{event.location}</p>
-                  <p className="text-sm mt-2 opacity-80">{event.description}</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg p-6 shadow-md">
-              <p className="text-[#5E0000]/60">Geen activiteiten op deze datum.</p>
-            </div>
-          )}
+        <div className="flex flex-wrap gap-x-4 gap-y-1.5 md:col-start-1 md:row-start-2">
+          {(Object.keys(typeLabel) as Event['type'][]).map((type) => (
+            <span key={type} className="flex items-center gap-1.5 text-[11px] text-[#5E0000]/80 md:text-xs">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: typeColor[type] }} />
+              {typeLabel[type]}
+            </span>
+          ))}
         </div>
       </div>
     </div>
