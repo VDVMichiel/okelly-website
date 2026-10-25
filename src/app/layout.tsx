@@ -43,6 +43,12 @@ const organizationJsonLd = {
     opens: '19:00',
     closes: '24:00',
   },
+  logo: {
+    '@type': 'ImageObject',
+    url: `${SITE_URL}/logo-square.png`,
+    width: 512,
+    height: 512,
+  },
 }
 
 export const metadata: Metadata = {
@@ -85,10 +91,6 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: DEFAULT_TITLE,
     description: DEFAULT_DESCRIPTION,
-  },
-  icons: {
-    icon: '/favicon.ico',
-    apple: '/logo.png',
   },
   robots: {
     index: true,
